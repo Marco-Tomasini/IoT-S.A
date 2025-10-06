@@ -1,6 +1,16 @@
+#include<WiFi.h>
+const String SSID = "nomeDaRede";
+const String PASS = "senhaDaRede";
 void setup() {
-  // put your setup code here, to run once:
-
+  Serial.begin(115200);
+  Serial.println("Conectando ao WiFi");
+  WiFi.begin(SSID,PASS);
+  while(WiFi.status() != WL_CONNECTED){
+    Serial.print(".");
+    delay(200);
+  }
+  Serial.println("\nConectado!");
+  Serial.println(WiFi.localIP());
 }
 
 void loop() {
