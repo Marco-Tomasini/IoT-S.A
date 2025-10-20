@@ -53,4 +53,12 @@ void loop() {
     Serial.println("IP:");
     Serial.println(WiFi.localIP());
   }
+
+  String mensagem = "Carlos: ";
+  mensagem += "opa";
+
+  mqtt.publish(TOPIC.c_str(),mensagem.c_str());
+  mqtt.loop();
+  delay(2000);
+
 }
