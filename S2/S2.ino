@@ -55,5 +55,12 @@ void loop() {
     Serial.println("\nConectado!");
     Serial.println("IP:");
     Serial.print(WiFi.localIP());
+
+    String mensagem = "Enzo: ";
+    mensagem += "oi";
+
+    mqtt.publish(Topic.c_str(), mensagem.c_str());
+    mqtt.loop();
+    delay(200);
   }
 }
