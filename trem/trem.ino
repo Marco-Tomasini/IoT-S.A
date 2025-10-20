@@ -1,7 +1,17 @@
 #include <WiFi.h>
+#include <PubSubClient.h>
+
+WiFiClient client;          //cria o cliente wifi
+PubSubClient mqtt(client);  // fala que o cliente usa o wifi
 
 const String SSID = "FIESC_IOT_EDU";
 const String PASS = "8120gv08";
+
+const int PORT = 1883;
+const String URL = "test.mosquitto.org";
+const String TOPIC = "DSM2";
+const String broker_user = "";
+const String broker_pass = "";
 
 void setup() {
   Serial.begin(115200);
@@ -15,6 +25,19 @@ void setup() {
   Serial.println("\nConectado!");
   Serial.println("IP:");
   Serial.println(WiFi.localIP());
+
+  Serial.print("Conectando ao broker...");
+  mqtt.setServer(URL.c_str(),PORT);
+
+  while(!mqtt.connected()){
+    String ID = "S3-";
+    ID += String(random(0xffff),HEX);
+
+    mqtt.connect(ID.c_str(),broker_user.c_str(),broker_pass.c_str());
+    delay(200);
+    Serial.print(".");
+  }
+  Serial.println("\n Conectado ao broker com sucesso!");
 }
 
 void loop() {
