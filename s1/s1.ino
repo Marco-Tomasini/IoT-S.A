@@ -4,56 +4,67 @@
 WiFiClient client;
 PubSubClient mqtt(client);
 
+#define PINO_LED 2
+
+//constantes p/ broker
+const String URL = "test.mosquitto.org";
+const int PORT = 1883;
+const String USR = "";
+const String broker_PASS = "";
+const String MyTopic = "Brayan";
+const String OtherTopic = "Enzo";
+
+
 const String SSID = "FIESC_IOT_EDU";
 const String PASS = "8120gv08";
 
-const int PORT           = 1883;
-const String URL         = "test.mosquitto.org.br";
-const String Topic       = "DSM2-23";
-const String broker_user = "";
-const String broker_pass = "";
-
 void setup() {
   Serial.begin(115200);
-  Serial.println("Conectando ao WiFi");
+  Serial.print("Conectado ao Wi-Fi");
   WiFi.begin(SSID,PASS);
-
   while(WiFi.status() != WL_CONNECTED){
     Serial.print(".");
     delay(200);
   }
-
-  Serial.println("\nConectado!");
-  Serial.println("IP:");
-  Serial.print(WiFi.localIP());
-
-  Serial.println("Conectando ao broker");
-  mqtt.setServer(URL.c_str(), PORT);
-
+  Serial.print("\nConectado com sucesso!");
+  Serial.print("Conectando ao broker");
+  mqtt.setServer(URL.c_str(),PORT);
   while(!mqtt.connected()){
-    String ID = "S2-";
-    ID += String(random(0xffff), HEX);
-    mqtt.connect(ID.c_str(), broker_user.c_str(), broker_pass.c_str());
+    String ID = "S1_";
+    ID += String(random(0xffff),HEX);
+    mqtt.connect(ID.c_str(),USR.c_str(),broker_PASS.c_str());
     Serial.print(".");
     delay(200);
   }
-
-  Serial.println("\nConectado ao broker com sucesso!");
+  pinMode(PINO_LED, OUTPUT);
+  mqtt.subscribe(MyTopic.c_str());
+  mqtt.setCallback(callback);
+  Serial.println("\nConecxao com sucesso ao broker!");
 }
 
 void loop() {
-  if (WiFi.status() != WL_CONNECTED){
+  String mensagem ="Brayan: ";
+  if(Serial.available()>0){
+    mensagem += Serial.readStringUntil('\n');
+    mqtt.publish(OtherTopic.c_str(),mensagem.c_str());
+  }
+  mqtt.loop();
+  delay(1000);
 
-    Serial.println("Conectando ao WiFi");
-    WiFi.begin(SSID,PASS);
+}
 
-    while(WiFi.status() != WL_CONNECTED){
-      Serial.print(".");
-      delay(200);
-    }
-
-    Serial.println("\nConectado!");
-    Serial.println("IP:");
-    Serial.print(WiFi.localIP());
+void callback(char* topic, byte* payload, unsigned int length){
+  String mensagem = "";
+  for(int i = 0; i < length; i++){
+    mensagem += (char)payload[i];//acender led
+  }
+  Serial.print("Recebido: ");
+  Serial.println(mensagem);
+  if(mensagem == "Enzo: Acender"){
+    digitalWrite(PINO_LED, HIGH);
+  }else if(mensagem == "Enzo: Apagar"){
+    digitalWrite(PINO_LED, LOW);
+  }else{
+    Serial.println(mensagem);
   }
 }
