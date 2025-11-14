@@ -1,22 +1,29 @@
+#include <WiFiClientSecure.h>
 #include <WiFi.h>
 #include <PubSubClient.h>
 
-WiFiClient client;            //cria o cliente wifi
+WiFiClientSecure client;            //cria o cliente wifi
 PubSubClient mqtt(client);    //fala que o mqtt usa o cliene wifi
 
 const String SSID = "FIESC_IOT_EDU";
 const String PASS = "8120gv08";
 
-const int PORT = 1883;
-const String URL = "test.mosquitto.org";
+const int PORT = 8883;
+const String URL = "81e7fafe091e4b09b0b93bf45fb52950.s1.eu.hivemq.cloud";
 
-const String broker_user = "";
-const String broker_pass = "";
+const String broker_user = "trem_Carlos";
+const String broker_pass = "Loscrias#67";
 
-const String MyTopic = "TopicoChat"; //define de onde vou receber as mensagem
-const String OtherTopic = "TopicoChat"; //define para onde vou enviar as mensagens
+const String MyTopic = "trem_Carlos"; //define de onde vou receber as mensagem
+
+const int ledVerde = 18;
+const int ledVermelho = 21;
 
 void setup() {
+  pinMode(ledVerde, OUTPUT);
+  pinMode(ledVermelho, OUTPUT);
+  client.setInsecure();
+
   Serial.begin(115200);
   Serial.println("Conectando ao WiFi");
   WiFi.begin(SSID,PASS);
@@ -48,29 +55,7 @@ void setup() {
 }
 
 void loop() {
-  if (WiFi.status() != WL_CONNECTED){
-
-    Serial.println("Conectando ao WiFi");
-    WiFi.begin(SSID,PASS);
-
-    while(WiFi.status() != WL_CONNECTED){
-      Serial.print(".");
-      delay(200);
-    }
-
-    Serial.println("\nConectado!");
-    Serial.println("IP:");
-    Serial.print(WiFi.localIP());
-  }
-
-  String mensagem = "Carlos: ";
-
-  if(Serial.available()>0){
-    mensagem += Serial.readStringUntil('\n'); //lê mensagem digitada
-    mqtt.publish(OtherTopic.c_str(),mensagem.c_str()); //envia a mensagem para o tópico
-  }
   mqtt.loop();
-  delay(500);
 }
 
 void callback(char* topic, byte* payload, unsigned int length){
@@ -81,13 +66,17 @@ void callback(char* topic, byte* payload, unsigned int length){
   Serial.print("Recebido: ");
   Serial.println(mensagem);
 
-  if(mensagem == "Carlos: acender" || mensagem == "Enzo: acender" || mensagem == "Brayan: acender" || mensagem == "Vitor: acender" || mensagem == "Marco: acender"){
-    digitalWrite(LED, HIGH);
-    Serial.println("Led Ligado");
+  int msg = mensagem.toInt();
+
+  if (msg > 0){
+    digitalWrite(ledVerde, HIGH);
+    digitalWrite(ledVermelho, LOW);
+  } else if(msg < 0){
+    digitalWrite(ledVerde, LOW);
+    digitalWrite(ledVermelho, HIGH);
+  } else{
+    digitalWrite(ledVerde, LOW);
+    digitalWrite(ledVermelho, LOW);
   }
 
-  if(mensagem == "Carlos: apagar" || mensagem == "Enzo: apagar" || mensagem == "Brayan: apagar" || mensagem == "Vitor: apagar" || mensagem == "Marco: apagar"){
-    digitalWrite(LED, LOW);
-    Serial.println("Led Desligado");
-  }
 }
