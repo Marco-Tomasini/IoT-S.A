@@ -1,4 +1,5 @@
 #include <WiFiClientSecure.h>
+#include <WiFi.h>
 #include <PubSubClient.h>
 #include <ESP32Servo.h>
 
@@ -24,8 +25,10 @@ const String p3 = "Presenca3";  //define para onde vou enviar as mensagens
 const int servoPin1 = 16;
 const int servoPin2 = 17;
 
-const int presenca3_ECHO = 24;
+const int presenca3_ECHO = 26;
 const int presenca3_TRIGG = 5;
+
+const int LED = 18;
 
 Servo servo1;
 Servo servo2;
@@ -93,8 +96,8 @@ void loop() {
   }
   long distancia = lerDistancia();
 
-  if (distancia >= 10){
-    mqtt.publish(Presenca3.c_str(),"Estado_01"); //envia a mensagem para o tópico
+  if (distancia <= 10){
+    mqtt.publish(p3.c_str(),"p3_Estado_01"); //envia a mensagem para o tópico
   }
 
   mqtt.loop();
@@ -121,11 +124,11 @@ void callback(char* topic, byte* payload, unsigned int length) {
   for (int i = 0; i < length; i++) {
     mensagem += (char)payload[i];
   }
-  Serial.print("Recebido: ");
-  Serial.println(mensagem);
+  // Serial.print("Recebido: ");
+  // Serial.println(mensagem);
 
   if (String(topic) == p1) {
-    if (mensagem == String("Estado_00")) {
+    if (mensagem == String("p1_Estado_00")) {
       servo1.write(estado_00);
       Serial.println("Estado 00 Ativado");
       mqtt.publish(s1.c_str(), "Estado_00");
@@ -133,7 +136,7 @@ void callback(char* topic, byte* payload, unsigned int length) {
   }
   
   if (String(topic) == p2) {
-    if (mensagem == String("Estado_01")) {
+    if (mensagem == String("p2_Estado_01")) {
       servo2.write(estado_01);
       Serial.println("Estado 01 Ativado");
       mqtt.publish(s2.c_str(), "Estado_01");
@@ -141,11 +144,11 @@ void callback(char* topic, byte* payload, unsigned int length) {
   }
 
   if (String(topic) == p3) {
-      mensagem == String("Estado_01") {
+      if (mensagem = String("p3_Estado_01")) {
       servo1.write(estado_01);
       servo2.write(estado_01);
       Serial.println("Estados Alterados");
-      mqtt.publis../cdh(s1.c_str(), "Estado_01");
+      mqtt.publish(s1.c_str(), "Estado_01");
       mqtt.publish(s2.c_str(), "Estado_01");
     }
   }
