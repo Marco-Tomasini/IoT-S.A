@@ -15,12 +15,12 @@ const String URL = "81e7fafe091e4b09b0b93bf45fb52950.s1.eu.hivemq.cloud";
 const String broker_user = "s3_Marco";
 const String broker_pass = "Loscrias#67";
 
-const String s1 = "Servo1";     //define de onde vou receber as mensagem
-const String s2 = "Servo2";     //define de onde vou receber as mensagem
+const String s1 = "Servo1";   
+const String s2 = "Servo2";    
 
-const String p1 = "Presenca1";  //define para onde vou enviar as mensagens
-const String p2 = "Presenca2";  //define para onde vou enviar as mensagens
-const String p3 = "Presenca3";  //define para onde vou enviar as mensagens
+const String p1 = "Presenca1";  
+const String p2 = "Presenca2";  
+const String p3 = "Presenca3"; 
 
 const int servoPin1 = 16;
 const int servoPin2 = 17;
